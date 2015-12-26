@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+                http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+                http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/rabbit
+                http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd">
+
+	<!-- 连接服务配置 -->
+	<rabbit:connection-factory id="mqconnectionFactory"
+		host="10.10.4.105" username="guest" password="guest" port="5672" />
+	<rabbit:admin connection-factory="mqconnectionFactory" />
+
+	<!-- queue 队列声明 -->
+	<rabbit:queue id="dmp_url_queue_test" durable="true"
+		auto-delete="false" exclusive="false" name="dmp_url_queue_test" />
+
+	<!-- exchange queue binging key 绑定 -->
+	<rabbit:direct-exchange name="dmp_url_exchange_test"
+		durable="true" auto-delete="false" id="dmp_url_exchange_test">
+		<rabbit:bindings>
+			<rabbit:binding queue="dmp_url_queue_test" />
+		</rabbit:bindings>
+	</rabbit:direct-exchange>
+
+
+	<!-- spring template声明-->
+    <rabbit:template exchange="dmp_url_exchange_test" id="amqpTemplate"  connection-factory="mqconnectionFactory"  message-converter="jsonMessageConverter"/>
+
+	<!-- Sender -->
+    <bean id="amqpAdmin"  
+        class="org.springframework.amqp.rabbit.core.RabbitAdmin">  
+        <constructor-arg ref="connectionFactory" />  
+    </bean>  
+    <bean id="rabbitTemplate"  
+        class="org.springframework.amqp.rabbit.core.RabbitTemplate">  
+        <constructor-arg ref="connectionFactory"></constructor-arg>  
+    </bean>  
+    <bean id="MQGateway"  
+        class="dmp.RabbitMQ.Spring.MQGateway">  
+        <property name="rabbitTemplate">  
+            <ref bean="rabbitTemplate" />  
+        </property>  
+    </bean>  
+
+
+	
+	<!-- queue listener -->
+	<rabbit:listener-container
+		connection-factory="mqconnectionFactory" acknowledge="auto">
+		<rabbit:listener queues="dmp_url_queue_test" ref="MQListener" />
+	</rabbit:listener-container>
+	<bean id="MQListener" class="dmp.RabbitMQ.Spring.MQListener">
+		<!-- <constructor-arg ref="flightWebService" />-->
+		<!-- <constructor-arg ref="campaignPublish" />-->
+	</bean>
+
+
+</beans>
