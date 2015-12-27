@@ -34,12 +34,16 @@ public class HiveJdbcClient {
 			ResultSetMetaData metaData = resultSet.getMetaData();
 			int columns = metaData.getColumnCount();
 
+			// print column names at first line
 			for (int i = 1; i <= columns; i++) {
 				System.out.print(metaData.getColumnName(i));
 				System.out.print("\t\t");
 			}
 			System.out.println();
 
+			
+			
+			// print column values for each row
 			while (resultSet.next()) {
 				for (int i = 1; i <= columns; i++) {
 					System.out.print(resultSet.getString(i));
@@ -47,6 +51,9 @@ public class HiveJdbcClient {
 				}
 				System.out.println();
 			}
+			
+			
+			
 		} catch (SQLException ex) {
 			System.err.println(ex.getMessage());
 		}
