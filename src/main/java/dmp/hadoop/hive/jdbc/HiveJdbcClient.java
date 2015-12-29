@@ -11,6 +11,8 @@ public class HiveJdbcClient {
 
 	private static final String HIVE_DRIVER = "org.apache.hive.jdbc.HiveDriver";
 	private static final String HIVE_URL = "jdbc:hive2://10.10.10.2:10008/default";
+	private static final String HIVE_USERNAME = "hdtreport";
+	private static final String HIVE_PASSWORD = "WF^h2AkHSaZp";
 	private Connection con;
 	private Statement stmt;
 	
@@ -87,7 +89,7 @@ public class HiveJdbcClient {
 	public void openConnection() {
 		try {
 			Class.forName(HIVE_DRIVER);
-			con = DriverManager.getConnection(HIVE_URL, "", "");
+			con = DriverManager.getConnection(HIVE_URL, HIVE_USERNAME, HIVE_PASSWORD);
 			stmt = con.createStatement();
 		} catch (ClassNotFoundException e) {
 			System.err.println("driver not found");
